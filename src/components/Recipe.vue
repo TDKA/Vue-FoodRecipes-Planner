@@ -1,11 +1,15 @@
 <template>
-  <div class="recipe" @click="openDescription()">
+  <div class="recipe" :class="{ complete: recipe.complete }">
     <div class="actions">
-      <h3>{{ recipe.title }}</h3>
+      <h3 @click="openDescription()">{{ recipe.title }}</h3>
       <div class="icons">
-        <span class="material-icons"> task_alt </span>
+        <span class="material-icons done" @click="completeRecipe">
+          task_alt
+        </span>
         <span @click="deleteRecipe" class="material-icons"> delete </span>
-        <span class="material-icons"> edit </span>
+        <router-link :to="{ name: 'EditRecipe', params: { id: recipe.id } }">
+          <span class="material-icons"> edit </span>
+        </router-link>
       </div>
     </div>
     <div class="description" v-if="showDescription">
@@ -24,15 +28,31 @@ export default {
   },
   props: ["recipe"],
   methods: {
+    // Toogle description
     openDescription() {
       this.showDescription = !this.showDescription;
     },
+    // Complete Recipe
+    completeRecipe() {
+      fetch(this.url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          complete: !this.recipe.complete,
+        }),
+      })
+        .then(() => {
+          this.$emit("complete", this.recipe.id);
+        })
+        .catch((err) => console.log(err.message));
+    },
+    // Delete recipe
     deleteRecipe() {
-      fetch(this.url, { method: "DELETE" }).then(() =>
-        this.$emit("delete", this.recipe.id).catch((err) =>
-          console.log(err.message)
-        )
-      );
+      fetch(this.url, {
+        method: "DELETE",
+      })
+        .then(() => this.$emit("delete", this.recipe.id))
+        .catch((err) => console.log(err.message));
     },
   },
 };
@@ -43,11 +63,13 @@ h3 {
   cursor: pointer;
 }
 .recipe {
-  background: whitesmoke;
+  background: #f4f4f4;
   margin: 30px auto;
   padding: 10px 26px;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-  border-left: 7px solid rgb(212, 0, 0);
+  border-left: 10px solid #dd2476;
+  color: #dd2476;
+  border-radius: 30px;
 }
 .actions {
   display: flex;
@@ -55,12 +77,22 @@ h3 {
   justify-content: space-between;
 }
 .material-icons {
-  color: #333;
-  font-size: 1.8rem;
+  color: rgb(148, 148, 148);
+  font-size: 1.9rem;
   margin-left: 10px;
   cursor: pointer;
 }
 .material-icons:hover {
-  border-bottom: 1px solid green;
+  color: #333;
+  font-weight: bold;
+}
+.description {
+}
+.recipe.complete {
+  border-left: 10px solid seagreen;
+  color: seagreen;
+}
+.recipe.complete .done {
+  color: seagreen;
 }
 </style>
