@@ -1,9 +1,13 @@
 <template>
   <div class="home">
+    <h1>Recipe Planner</h1>
+    <div class="notDone"></div>
+    <div class="done"></div>
+
     <!-- if there is smth in the array "recipes" => show it  -->
     <div v-if="recipes.length">
       <div v-for="recipe in recipes" :key="recipe.id">
-        <Recipe :recipe="recipe" />
+        <Recipe :recipe="recipe" @delete="handleDelete" />
       </div>
     </div>
   </div>
@@ -19,6 +23,13 @@ export default {
     return {
       recipes: [],
     };
+  },
+  methods: {
+    handleDelete(idRecipe) {
+      this.recipes = this.recipes.filter((recipe) => {
+        return recipe.id !== idRecipe;
+      });
+    },
   },
   mounted() {
     fetch("http://localhost:3000/recipes")

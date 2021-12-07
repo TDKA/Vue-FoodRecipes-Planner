@@ -28,7 +28,11 @@ export default {
       this.showDescription = !this.showDescription;
     },
     deleteRecipe() {
-      fetch(this.url, { method: "DELETE" });
+      fetch(this.url, { method: "DELETE" }).then(() =>
+        this.$emit("delete", this.recipe.id).catch((err) =>
+          console.log(err.message)
+        )
+      );
     },
   },
 };
